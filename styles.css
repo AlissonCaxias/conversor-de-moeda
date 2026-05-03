@@ -1,0 +1,195 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+}
+:root {
+    --primary-color: #4270b5;
+    --secondary-color: #bde4f3;
+    --accent-color: #7fffd4;
+    --text-primary: #fff;
+    --text-title-shadow: #d1d34a;
+    --text-secondary: #ffffff;
+    --bg-color: #57729a;
+    --border-color: #2a2a2a;
+    --container-bg: #4270b589;
+    --title-color: #bde4f3;
+    --select-bg: #e0ebff;
+    --trocador-color: rgba(178, 178, 178, 0.696);
+}
+body {
+    background: var(--bg-color);
+    display: block;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+#gif-logo {
+    width: 15vw;
+    height: 15vh;
+    /*position: fixed;*/
+    top: 0;
+    display: block;
+    margin: 0 auto;
+    margin-bottom: 10px;
+}
+
+@keyframes glow-pulse {
+    0%   { box-shadow: 0 0 5px rgba(227, 239, 57, 0.1); }
+    50%  { box-shadow: 0 0 20px rgba(227, 239, 57, 0.8), 0 0 35px rgba(227, 239, 57, 0.4); }
+    100% { box-shadow: 0 0 5px rgba(227, 239, 57, 0.1); }
+}
+
+.container {
+    top: 15.5%;
+    /*position: fixed;*/
+    width: 30vw;
+    background: var(--container-bg);
+    padding: .5rem 1.5rem;
+    border-radius: 10px;
+    margin: 0 auto;
+    box-shadow: 0 0 10px rgba(227, 239, 57, 0.274);
+    animation: glow-pulse 3s ease-in-out infinite;
+}
+h1.title {
+    color: var(--title-color);
+    text-align: center;
+    text-shadow: 1px 1px 5px var(--text-title-shadow);
+    margin-bottom: 0.95rem;
+    font-size: 1.5rem;
+}
+label{
+    color: var(--text-secondary);
+    font-size: 1rem;
+    margin-bottom: .09rem;
+}
+.currency-box, .input-box{
+    display: flex;
+    flex-direction: column;
+    width: 60%;
+}
+.currency-box select{
+    font-size: 1rem;
+    padding: 14px 12px;
+}
+.currency-row{
+    display: flex;
+    gap: 0.4rem;
+    flex-direction: column  ;
+    align-items: center;
+}
+.swap-btn{
+    padding: .8rem;
+    border-radius: 10px;
+    border: none;
+    background: var(--trocador-color);
+    width: 4rem;
+    height: 2.6rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+.swap-btn:hover{
+    background: var(--title-color);
+    box-shadow: 0 0 10px var(--text-title-shadow);
+}
+
+select{
+    width: 100%;
+    padding: 1rem;
+    border-radius: 10px;
+    border: none;
+    background: var(--select-bg);
+    outline: none;
+    appearance: none;
+    padding-left: 20px;
+
+}
+
+input{
+    padding: 14px 4px;
+    border-radius: 10px;
+    border: none;
+    background: var(--select-bg);
+    outline: none;
+    transition: all 0.3s ease;
+    text-align: right;
+    font-size: 1rem;
+}
+select:focus{
+    box-shadow: 0 0 8px var(--title-color);
+}
+input:focus{
+    box-shadow: 0 0 8px var(--title-color);}
+.input-box #amount {
+    transition: all 0.3s ease;
+    text-align: center;
+    font-size: 1rem;
+}
+.input-box label{
+    align-items: center;
+    text-align: left;
+}
+.convert-btn{
+    margin-top: 10px;
+    width: 100%;
+    padding: 1rem;
+    border-radius: 10px;
+    border: none;
+    background: var(--trocador-color);
+    color: var(--border-color);
+    cursor: pointer;
+    font-size: 1.2rem;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+.convert-btn:hover{
+    background: var(--title-color);
+    box-shadow: 0 0 10px var(--text-title-shadow);
+    color: var(--primary-color);
+    text-shadow: 1px 1px 4px #04a1d1a2;
+}
+.result-section{
+    margin-bottom: 1rem;
+    flex-direction: column;
+    /*gap: 0.6rem;*/
+}
+.flag {
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+}
+.flag img{
+    width: 5vw;
+    height:4.5vw;
+    border-radius: 50%;
+
+}
+.arrow-img{
+    width: 6vw;
+    height: 3vh;
+    border-radius: 10%;
+    margin: 0 0 4px 0;
+}
+.result-box{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 0.70rem; 
+    background-color: #e0ebff; 
+    border-radius: 10px;
+    padding: .2rem; 
+}
+.from-currency-result,
+#to-currency-result{
+    font-size:0.9rem;
+    color:var(--border-color);
+}
+#current-rate, #target-rate{
+    margin: .2rem 0 0 0;
+    font-size:1.3rem;
+    color:var(--border-color);
+    text-shadow: 1px 1px 1px var(--text-title-shadow);
+}
+#target-rate {margin-bottom: .2rem;}
