@@ -17,16 +17,16 @@
             <div class="currency-box">
                 <label for="from-currency">Converter <b>de:</b></label>
                 <select id="from-currency" title="Moeda-Corrente">
-                    <option value="BRL">R$ Real Brasileiro</option>
-                    <option value="USD">$ Dólar Americano</option>
-                    <option value="EUR">€ Euro</option>
-                    <option value="GBP">£ Libra Esterlina</option>
-                    <option value="JPY">¥ Iene Japonês</option>
-                    <option value="CAD">$ Dólar Canadense</option>
-                    <option value="AUD">$ Dólar Australiano</option>
-                    <option value="CHF">Fr$ Franco Suíço</option>
-                    <option value="CNY">¥ Yuan Chinês</option>
-                    <option value="MXN">$ Peso Mexicano</option>
+                    <option selected name="BRL" value="R$" lang="pt-BR">R$ Real Brasileiro</option>
+                    <option name="USD" value="$" lang="en-US">$ Dólar Americano</option>
+                    <option name="EUR" value="€" lang="es-ES">€ Euro</option>
+                    <option name="GBP" value="£" lang="en-GB">£ Libra Esterlina</option>
+                    <option name="JPY" value="¥" lang="ja-JP">¥ Iene Japonês</option>
+                    <option name="CAD" value="$" lang="en-CA">$ Dólar Canadense</option>
+                    <option name="AUD" value="$" lang="en-AU">$ Dólar Australiano</option>
+                    <option name="CHF" value="Fr$" lang="fr-CH">Fr$ Franco Suíço</option>
+                    <option name="CNY" value="¥" lang="zh-CN">¥ Yuan Chinês</option>
+                    <option name="MXN" value="$" lang="es-MX">$ Peso Mexicano</option>
                 </select>
             </div>
 
@@ -35,20 +35,20 @@
             <div class="currency-box">
                 <label for="to-currency">Converter <b>para:</b></label>
                 <select id="to-currency" title="Moeda-Alvo">
-                    <option value="USD">$ Dólar Americano</option>
-                    <option value="BRL">R$ Real Brasileiro</option>
-                    <option value="EUR">€ Euro</option>
-                    <option value="GBP">£ Libra Esterlina</option>
-                    <option value="JPY">¥ Iene Japonês</option>
-                    <option value="CAD">$ Dólar Canadense</option>
-                    <option value="AUD">$ Dólar Australiano</option>
-                    <option value="CHF">Fr$ Franco Suíço</option>
-                    <option value="CNY">¥ Yuan Chinês</option>
-                    <option value="MXN">$ Peso Mexicano</option>
+                    <option name="BRL" value="R$" lang="pt-BR">R$ Real Brasileiro</option>
+                    <option selected name="USD" value="$" lang="en-US">$ Dólar Americano</option>
+                    <option name="EUR" value="€" lang="es-ES">€ Euro</option>
+                    <option name="GBP" value="£" lang="en-GB">£ Libra Esterlina</option>
+                    <option name="JPY" value="¥" lang="ja-JP">¥ Iene Japonês</option>
+                    <option name="CAD" value="$" lang="en-CA">$ Dólar Canadense</option>
+                    <option name="AUD" value="$" lang="en-AU">$ Dólar Australiano</option>
+                    <option name="CHF" value="Fr$" lang="fr-CH">Fr$ Franco Suíço</option>
+                    <option name="CNY" value="¥" lang="zh-CN">¥ Yuan Chinês</option>
+                    <option name="MXN" value="$" lang="es-MX">$ Peso Mexicano</option>
                 </select>
             </div>
             <div class="input-box">
-                <label for="amount">Valor a converter</label>
+                <label for="amount">Valor a <b>converter</b></label>
                 <input type="number" id="amount" placeholder="R$ 1.000,00">
             </div>
         </div>
@@ -72,7 +72,7 @@
         </section>
     </main>
 
-    <script src="script.js"></script>
+    <script src="scripts.js"></script>
 </body>
 
 </html>

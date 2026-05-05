@@ -1,197 +1,180 @@
+// ─── Seleção de Elementos ────────────────────────────────────────────────────
 const convertBtn = document.getElementById('convert-btn');
 const fromCurrency = document.getElementById('from-currency');
 const toCurrency = document.getElementById('to-currency');
 const amount = document.getElementById('amount');
-const result = document.getElementById('result');
+const swapBtn = document.getElementById('swap-btn');
 
-/*
-const API_KEY = '58e4f061-fff1-4dec-895c-767bcac66208';
-const BASE_URL = `https://apiv6.exchangerate-api.com/v6/${API_KEY}`;
+const currentRateEl = document.getElementById('current-rate');
+const targetRateEl = document.getElementById('target-rate');
 
-// Armazena as taxas de câmbio baixadas
+const fromFlagImg = document.querySelector('.box-current img');
+const fromNameEl = document.querySelector('.from-currency-result');
+const toFlagImg = document.querySelector('.box-target img');
+const toNameEl = document.querySelector('.to-currency-result');
+//Valor inicial do campo Valor a converter
+amount.value = 0.01;
+
+// ─── Cache das Taxas ─────────────────────────────────────────────────────
 let ratesCache = {};
 
-// Flags e Nomes das Moedas
+// ─── Dados das Bandeiras e Nomes ─────────────────────────────────────────────
 const flags = {
-    "BRL": { file: "./assets/flag-BRL.png", name: "Real" },
-    "USD": { file: "./assets/flag-USD.png", name: "Dólar" },
-    "EUR": { file: "./assets/flag-EUR.png", name: "Euro" },
-    "GBP": { file: "./assets/flag-GBP.png", name: "Libra" },
-    "JPY": { file: "./assets/flag-JPY.png", name: "Iene" },
-    "CAD": { file: "./assets/flag-CAD.png", name: "Dólar Canadense" },
-    "AUD": { file: "./assets/flag-AUD.png", name: "Dólar Australiano" },
-    "CHF": { file: "./assets/flag-CHF.png", name: "Franco Suíço" },
-    "CNY": { file: "./assets/flag-CNY.png", name: "Yuan Chinês" },
-    "MXN": { file: "./assets/flag-MXN.png", name: "Peso Mexicano" }
+    BRL: { file: './assets/flag-BRL.png', name: 'Real' },
+    USD: { file: './assets/flag-USD.png', name: 'Dólar' },
+    EUR: { file: './assets/flag-EUR.png', name: 'Euro' },
+    GBP: { file: './assets/flag-GBP.png', name: 'Libra' },
+    JPY: { file: './assets/flag-JPY.png', name: 'Iene' },
+    CAD: { file: './assets/flag-CAD.png', name: 'Dólar Canadense' },
+    AUD: { file: './assets/flag-AUD.png', name: 'Dólar Australiano' },
+    CHF: { file: './assets/flag-CHF.png', name: 'Franco Suíço' },
+    CNY: { file: './assets/flag-CNY.png', name: 'Yuan Chinês' },
+    MXN: { file: './assets/flag-MXN.png', name: 'Peso Mexicano' },
 };
 
-function updateFlag(selectElement, imgElement, nameElement) {
-    const selectedValue = selectElement.value;
-    if (flags[selectedValue]) {
-        imgElement.src = flags[selectedValue].file;
-        imgElement.alt = `Imagem ${selectedValue}`;
-        nameElement.textContent = flags[selectedValue].name;
+// ─── Atualiza Bandeira e Nome ─────────────────────────────────────────────
+function updateFlag(selectEl, imgEl, nameEl) {
+    const opt = selectEl.options[selectEl.selectedIndex];
+    const code = opt.getAttribute('name');
+    if (flags[code]) {
+        imgEl.src = flags[code].file;
+        imgEl.alt = `Bandeira ${code}`;
+        nameEl.textContent = flags[code].name;
     }
 }
 
-fromCurrencySelect.addEventListener("change", () => {
-    updateFlag(fromCurrencySelect, document.querySelector('.box-current img'), document.querySelector('.from-currency-result'));
-});
+// ─── Busca Taxas da API (com cache e reserva) ────────────────────────────────
+async function fetchRates(fromCode) {
+    if (!fromCode) return null;
+    const code = fromCode.trim(); // Garante que não haja espaços invisíveis
 
-toCurrencySelect.addEventListener("change", () => {
-    updateFlag(toCurrencySelect, document.querySelector('.box-target img'), document.querySelector('.to-currency-result'));
-});
+    if (ratesCache[code]) return ratesCache[code];
 
-async function fetchRates(fromCurrency) {
-    if (!ratesCache[fromCurrency]) {
-        try {
-            const response = await fetch(`${BASE_URL}/latest/${fromCurrency}`);
+    const primaryUrl = `https://open.er-api.com/v6/latest/${code}`;
+    const fallbackUrl = `https://api.frankfurter.app/latest?from=${code}`;
+
+    // Tentativa 1: API Principal
+    try {
+        console.log("Tentando API Principal...");
+        const response = await fetch(primaryUrl);
+        if (response.ok) {
             const data = await response.json();
-            if (data.result === "success" && data.conversion_rates) {
-                ratesCache[fromCurrency] = data.conversion_rates;
-                console.log(`Taxas para ${fromCurrency} baixadas.`);
-            } else {
-                console.error("API error", data);
-                return null;
+            // Pega o que estiver disponível: rates ou conversion_rates
+            const rates = data.rates || data.conversion_rates;
+            if (rates) {
+                rates[code] = 1;
+                ratesCache[code] = rates;
+                console.log("Sucesso: API Principal");
+                return rates;
             }
-        } catch (error) {
-            console.error("Fetch error:", error);
-            return null;
         }
+    } catch (e) {
+        console.warn("API Principal falhou.");
     }
-    return ratesCache[fromCurrency];
+
+    // Tentativa 2: API Reserva
+    try {
+        console.log("Tentando API Reserva...");
+        const response = await fetch(fallbackUrl);
+        if (response.ok) {
+            const data = await response.json();
+            const rates = data.rates || data.conversion_rates;
+            if (rates) {
+                rates[code] = 1;
+                ratesCache[code] = rates;
+                console.log("Sucesso: API Reserva");
+                return rates;
+            }
+        }
+    } catch (e) {
+        console.error("API Reserva falhou.");
+    }
+
+    return null;
 }
 
-convertBtn.addEventListener("click", async function() {
-    const from = fromCurrencySelect.value;
-    const to = toCurrencySelect.value;
-    const amountValue = parseFloat(amountInput.value);
+// ─── Conversão Principal ─────────────────────────────────────────────────────
+async function convertValues() {
+    const optFrom = fromCurrency.options[fromCurrency.selectedIndex];
+    const optTo = toCurrency.options[toCurrency.selectedIndex];
+
+    const nameFrom = optFrom.getAttribute('name');
+    const nameTo = optTo.getAttribute('name');
+    const langFrom = optFrom.getAttribute('lang');
+    const langTo = optTo.getAttribute('lang');
+
+    const amountValue = parseFloat(amount.value);
 
     if (isNaN(amountValue) || amountValue <= 0) {
-        alert("Por favor, insira um valor válido.");
+        alert('Por favor, insira um valor válido.');
         return;
     }
 
-    const rates = await fetchRates(from);
+    // Busca as taxas
+    const rates = await fetchRates(nameFrom);
+
     if (!rates) {
-        alert("Não foi possível obter as taxas de câmbio. Tente novamente.");
+        alert('Não foi possível obter as taxas de câmbio. Verifique sua conexão.');
         return;
     }
 
-    const exchangeRate = rates[to];
+    const exchangeRate = rates[nameTo];
     if (exchangeRate === undefined) {
-        alert("Taxa de câmbio não disponível para esta conversão.");
+        alert('Taxa de câmbio não disponível para esta moeda.');
         return;
     }
 
     const resultValue = amountValue * exchangeRate;
 
-    document.getElementById('current-rate').textContent = `${from} ${amountValue.toFixed(2)}`;
-    document.getElementById('target-rate').textContent = `${to} ${resultValue.toFixed(2)}`;
+    currentRateEl.innerHTML = new Intl.NumberFormat(`${langFrom}`, { style: 'currency', currency: `${nameFrom}` }).format(amountValue);
+    targetRateEl.innerHTML = new Intl.NumberFormat(`${langTo}`, { style: 'currency', currency: `${nameTo}` }).format(resultValue);
+}
+
+// ─── Trocar Moedas ────────────────────────────────────────────────────────────
+function swapCurrencies() {
+    const codeFrom = fromCurrency.options[fromCurrency.selectedIndex].getAttribute('name');
+    const codeTo = toCurrency.options[toCurrency.selectedIndex].getAttribute('name');
+
+    for (const opt of fromCurrency.options) {
+        if (opt.getAttribute('name') === codeTo) {
+            opt.selected = true;
+            break;
+        }
+    }
+    for (const opt of toCurrency.options) {
+        if (opt.getAttribute('name') === codeFrom) {
+            opt.selected = true;
+            break;
+        }
+    }
+
+    updateFlag(fromCurrency, fromFlagImg, fromNameEl);
+    updateFlag(toCurrency, toFlagImg, toNameEl);
+}
+
+// ─── Event Listeners ──────────────────────────────────────────────────────────
+
+// Botão de Converter
+convertBtn.addEventListener('click', convertValues);
+
+// Botão de Trocar (Swap)
+swapBtn.addEventListener('click', () => {
+    swapCurrencies();
+    convertValues(); // Converte logo após trocar
 });
 
-// Inicialização
-updateFlag(fromCurrencySelect, document.querySelector('.box-current img'), document.querySelector('.from-currency-result'));
-updateFlag(toCurrencySelect, document.querySelector('.box-target img'), document.querySelector('.to-currency-result'));
-
-convertBtn.addEventListener("click", function() {
-    /*convert();
-    getExchangeRate();
-    console.log("Apertei o botão");
-    console.log(fromCurrency.value);
-    console.log(toCurrency.value);
-    console.log(amount.value);
-
+// Mudança no select "De"
+fromCurrency.addEventListener('change', () => {
+    updateFlag(fromCurrency, fromFlagImg, fromNameEl);
+    convertValues(); // Converte automaticamente ao mudar a moeda
 });
 
-function convert() {
-    const fromCurrencyValue = fromCurrency.value;
-    const toCurrencyValue = toCurrency.value;
-    const amountValue = amount.value;
+// Mudança no select "Para"
+toCurrency.addEventListener('change', () => {
+    updateFlag(toCurrency, toFlagImg, toNameEl);
+    convertValues(); // Converte automaticamente ao mudar a moeda
+});
 
-    const resultValue = amountValue * fromCurrencyValue;
-
-    result.textContent = resultValue;
-}
-
-async function getExchangeRate() {
-    const apiKey = '58e4f061-fff1-4dec-895c-767bcac66208';
-    const url = `https://apiv6.exchangerate-api.com/v6/latest/${fromCurrency.value}?apikey=${apiKey}`;
-    const response = await fetch(url);
-    const data = await response.json();
-    const exchangeRate = data.conversion_rates[toCurrency.value];
-    return exchangeRate;
-}
-
-switch (fromCurrency.value) {
-    case "BRL":
-        fromCurrencyResult.textContent = "./assets/flag-BRL.png";
-        break;
-    case "USD":
-        fromCurrencyResult.textContent = "./assets/flag-USD.png";
-        break;
-    case "EUR":
-        fromCurrencyResult.textContent = "./assets/flag-EUR.png";
-        break;
-    case "GBP":
-        fromCurrencyResult.textContent = "./assets/flag-GBP.png";
-        break;
-    case "JPY":
-        fromCurrencyResult.textContent = "./assets/flag-JPY.png";
-        break;
-    case "CAD":
-        fromCurrencyResult.textContent = "./assets/flag-CAD.png";
-        break;
-    case "AUD":
-        fromCurrencyResult.textContent = "./assets/flag-AUD.png";
-        break;
-    case "CHF":
-        fromCurrencyResult.textContent = "./assets/flag-CHF.png";
-        break;
-    case "CNY":
-        fromCurrencyResult.textContent = "./assets/flag-CNY.png";
-        break;
-    case "MXN":
-        fromCurrencyResult.textContent = "./assets/flag-MXN.png";
-        break;
-
-    default:
-        break;
-}
-
-switch (toCurrency.value) {
-    case "BRL":
-        toCurrencyResult.textContent = "./assets/flag-BRL.png";
-        break;
-    case "USD":
-        toCurrencyResult.textContent = "./assets/flag-USD.png";
-        break;
-    case "EUR":
-        toCurrencyResult.textContent = "./assets/flag-EUR.png";
-        break;
-    case "GBP":
-        toCurrencyResult.textContent = "./assets/flag-GBP.png";
-        break;
-    case "JPY":
-        toCurrencyResult.textContent = "./assets/flag-JPY.png";
-        break;
-    case "CAD":
-        toCurrencyResult.textContent = "./assets/flag-CAD.png";
-        break;
-    case "AUD":
-        toCurrencyResult.textContent = "./assets/flag-AUD.png";
-        break;
-    case "CHF":
-        toCurrencyResult.textContent = "./assets/flag-CHF.png";
-        break;
-    case "CNY":
-        toCurrencyResult.textContent = "./assets/flag-CNY.png";
-        break;
-    case "MXN":
-        toCurrencyResult.textContent = "./assets/flag-MXN.png";
-        break;
-
-    default:
-        break;
-}
-*/
+// ─── Inicialização ────────────────────────────────────────────
+updateFlag(fromCurrency, fromFlagImg, fromNameEl);
+updateFlag(toCurrency, toFlagImg, toNameEl);
